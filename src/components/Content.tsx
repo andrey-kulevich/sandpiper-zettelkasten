@@ -5,32 +5,30 @@ import SaveIcon from '@mui/icons-material/Save';
 import PrintIcon from '@mui/icons-material/Print';
 import ShareIcon from '@mui/icons-material/Share';
 import MarkdownEditor from '@uiw/react-markdown-editor';
-import { useState } from 'react';
-
-//const fs = window.require('fs');
-//const pathModule = window.require('path');
-//const { app } = window.require('@electron/remote');
-
-//console.log(app);
-
-const actions = [
-	{ icon: <FileCopyIcon />, name: 'Copy', onClick: () => {} },
-	{ icon: <SaveIcon />, name: 'Save', onClick: () => {} },
-	{ icon: <PrintIcon />, name: 'Print', onClick: () => {} },
-	{ icon: <ShareIcon />, name: 'Share', onClick: () => {} },
-];
+import { useEffect, useState } from 'react';
+import { ipcRenderer } from 'electron';
 
 export default function Content() {
 	const [markdown, setMarkdown] = useState<string>('');
 
-	// const foo = () => {
-	// 	fs.readdir('/', (e: any, files: any) => {
-	// 		// On error, show and return error
-	// 		if (e) return console.error(e);
-	//
-	// 		console.log(files);
-	// 	});
-	// };
+	const actions = [
+		{ icon: <FileCopyIcon />, name: 'Copy', onClick: () => {} },
+		{
+			icon: <SaveIcon />,
+			name: 'Save',
+			onClick: () => {
+				ipcRenderer.invoke('app:on-file-add', { name: 'bla.txt', data: markdown }).then((res) => console.log(res));
+			},
+		},
+		{ icon: <PrintIcon />, name: 'Print', onClick: () => {} },
+		{ icon: <ShareIcon />, name: 'Share', onClick: () => {} },
+	];
+
+	useEffect(() => {
+		ipcRenderer.invoke('app:on-file-open', 'bla.txt').then((data) => {
+			setMarkdown(data);
+		});
+	}, []);
 
 	return (
 		<>
@@ -44,8 +42,9 @@ export default function Content() {
 				))}
 			</SpeedDial>
 			<MarkdownEditor
+				visible
 				minHeight={'100vh'}
-				value='# This is a H1  \n## This is a H2  \n###### This is a H6'
+				value={markdown}
 				onChange={(value, viewUpdate) => setMarkdown(value)}
 			/>
 		</>
