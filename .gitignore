@@ -12,6 +12,7 @@
 
 # production
 /build
+/knowledge_base
 
 # misc
 .DS_Store

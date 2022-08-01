@@ -1,34 +1,42 @@
 import * as React from 'react';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
-import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import SaveIcon from '@mui/icons-material/Save';
-import PrintIcon from '@mui/icons-material/Print';
-import ShareIcon from '@mui/icons-material/Share';
+import Delete from '@mui/icons-material/Delete';
 import MarkdownEditor from '@uiw/react-markdown-editor';
 import { useEffect, useState } from 'react';
 import { ipcRenderer } from 'electron';
 
-export default function Content() {
+export default function Content({ noteName }: { noteName: string }) {
 	const [markdown, setMarkdown] = useState<string>('');
 
+	const saveNote = () => {
+		const filename = markdown.substring(0, markdown.indexOf('\n')).replace('#', '').trim() + '.txt';
+		ipcRenderer.invoke('app:on-file-add', { name: filename, data: markdown }).then((res) => console.log(res));
+	};
+
+	const deleteNote = () => {
+		ipcRenderer.invoke('app:on-file-add', { filename: noteName }).then((res) => console.log(res));
+	};
+
 	const actions = [
-		{ icon: <FileCopyIcon />, name: 'Copy', onClick: () => {} },
-		{
-			icon: <SaveIcon />,
-			name: 'Save',
-			onClick: () => {
-				ipcRenderer.invoke('app:on-file-add', { name: 'bla.txt', data: markdown }).then((res) => console.log(res));
-			},
-		},
-		{ icon: <PrintIcon />, name: 'Print', onClick: () => {} },
-		{ icon: <ShareIcon />, name: 'Share', onClick: () => {} },
+		{ icon: <SaveIcon />, name: 'Save', onClick: saveNote },
+		{ icon: <Delete />, name: 'Delete', onClick: deleteNote },
 	];
 
 	useEffect(() => {
-		ipcRenderer.invoke('app:on-file-open', 'bla.txt').then((data) => {
+		ipcRenderer.invoke('app:on-file-open', noteName).then((data) => {
 			setMarkdown(data);
 		});
-	}, []);
+
+		// save note on hotkey
+		document.addEventListener(
+			'keydown',
+			(event) => {
+				if (event.ctrlKey && event.key === 's') saveNote();
+			},
+			false,
+		);
+	}, [noteName]);
 
 	return (
 		<>

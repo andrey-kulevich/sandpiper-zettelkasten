@@ -1,18 +1,14 @@
 import * as React from 'react';
-import { InputAdornment, List, ListItem, TextField } from '@mui/material';
+import { InputAdornment, List, ListItem, ListItemButton, TextField } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
-import { ipcRenderer } from 'electron';
 
-export default function NotesBrowser() {
-	const [files, setFiles] = useState([]);
-
-	useEffect(() => {
-		ipcRenderer.invoke('app:get-files').then((files = []) => {
-			setFiles(files);
-		});
-	}, []);
-
+export default function NotesBrowser({
+	notes,
+	setCurrentNote,
+}: {
+	notes: any[];
+	setCurrentNote: (filename: string) => void;
+}) {
 	return (
 		<>
 			<TextField
@@ -30,8 +26,12 @@ export default function NotesBrowser() {
 				}}
 			/>
 			<List>
-				{files.map((elem, index) => (
-					<ListItem key={index}>{elem.name}</ListItem>
+				{notes.map((elem, index) => (
+					<ListItem key={index} disablePadding>
+						<ListItemButton onClick={() => setCurrentNote(elem.name)}>
+							{elem.name.substring(0, elem.name.length - 4)}
+						</ListItemButton>
+					</ListItem>
 				))}
 			</List>
 		</>

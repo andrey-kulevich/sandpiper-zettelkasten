@@ -76,8 +76,8 @@ ipcMain.handle('app:on-file-add', (event, file) => {
 // });
 
 // listen to file delete event
-ipcMain.on('app:on-file-delete', (event, file) => {
-	deleteFile(file.filepath);
+ipcMain.on('app:on-file-delete', (event, filename) => {
+	deleteFile(filename);
 });
 
 // listen to file open event
