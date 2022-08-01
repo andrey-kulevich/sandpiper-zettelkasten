@@ -70,13 +70,8 @@ ipcMain.handle('app:on-file-add', (event, file) => {
 	addFile(file);
 });
 
-// // open filesystem dialog to choose files
-// ipcMain.handle('app:on-fs-dialog-open', (event, path) => {
-// 	return readFile(path);
-// });
-
 // listen to file delete event
-ipcMain.on('app:on-file-delete', (event, filename) => {
+ipcMain.handle('app:on-file-delete', (event, filename) => {
 	deleteFile(filename);
 });
 

@@ -32,7 +32,7 @@ function App() {
 						<NotesBrowser notes={files} setCurrentNote={setCurrentNote} />
 					</Box>
 					<Box sx={{ width: '75%', height: '100vh' }}>
-						<Content noteName={currentNote} />
+						<Content noteName={currentNote} setNoteName={setCurrentNote} notes={files} />
 					</Box>
 				</Stack>
 			</ThemeProvider>
