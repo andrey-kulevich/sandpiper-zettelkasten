@@ -6,6 +6,7 @@ import MarkdownEditor from '@uiw/react-markdown-editor';
 import { useEffect, useState } from 'react';
 import { ipcRenderer } from 'electron';
 import { Add } from '@mui/icons-material';
+import { NotificationContext } from '../App';
 
 export default function Content({
 	noteName,
@@ -17,6 +18,7 @@ export default function Content({
 	notes: any[];
 }) {
 	const [markdown, setMarkdown] = useState<string>('');
+	const notify = React.useContext(NotificationContext);
 
 	const saveNote = () => {
 		const filename = markdown.substring(0, markdown.indexOf('\n')).replace('#', '').trim() + '.txt';
@@ -27,11 +29,11 @@ export default function Content({
 				data: markdown,
 				updateName: isUpdateName ? filename : undefined,
 			})
-			.then((res) => console.log(res));
+			.then(notify('Zettelkasten saved'));
 	};
 
 	const deleteNote = () => {
-		ipcRenderer.invoke('app:on-file-delete', noteName).then((res) => console.log(res));
+		ipcRenderer.invoke('app:on-file-delete', noteName).then(notify('Zettelkasten deleted'));
 	};
 
 	const newNote = () => {
@@ -54,21 +56,19 @@ export default function Content({
 		{ icon: <Delete />, name: 'Delete', onClick: deleteNote },
 	];
 
+	const saveNoteOnKeydown = (event: KeyboardEvent) => {
+		if (event.ctrlKey && event.key === 's') saveNote();
+	};
+
 	useEffect(() => {
 		if (noteName.length > 0) {
 			ipcRenderer.invoke('app:on-file-open', noteName).then((data) => {
 				setMarkdown(data);
 			});
 		}
-
 		// save note on hotkey
-		document.addEventListener(
-			'keydown',
-			(event) => {
-				if (event.ctrlKey && event.key === 's') saveNote();
-			},
-			false,
-		);
+		document.addEventListener('keydown', saveNoteOnKeydown, false);
+		return () => document.removeEventListener('keydown', saveNoteOnKeydown, false);
 	}, [noteName]);
 
 	return (

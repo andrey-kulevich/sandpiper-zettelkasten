@@ -1,2 +1,3 @@
 import './index.css';
-import './App';
+import { render } from './App';
+render();
